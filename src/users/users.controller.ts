@@ -6,12 +6,15 @@ import {
   Patch,
   Param,
   Body,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../model/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto/users.dto';
+import { NotFoundInterceptor } from '../errors.interceptor';
 
 @Controller('api/v1/users')
+@UseInterceptors(new NotFoundInterceptor())
 export class UsersController {
   constructor(private readonly serv: UsersService) {}
 
