@@ -3,21 +3,26 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../model/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto/users.dto';
+import { RolesService } from '../roles/roles.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly repo: Repository<User>,
+    private readonly rolesServ: RolesService,
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
-    const { googleId, email, firstName, lastName } = dto;
+    const { googleId, email, firstName, lastName, roleId } = dto;
 
     const newUser = new User();
     newUser.googleId = googleId;
     newUser.email = email;
     newUser.firstName = firstName;
     newUser.lastName = lastName;
+
+    const role = await this.rolesServ.findOne(roleId);
+    newUser.role = role;
 
     return await this.repo.save(newUser);
   }

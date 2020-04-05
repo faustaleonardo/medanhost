@@ -3,11 +3,11 @@ import { IsString, IsNotEmpty } from 'class-validator';
 export class CreateRoleDto {
   @IsString()
   @IsNotEmpty()
-  value: string;
+  readonly value: string;
 }
 
 export class UpdateRoleDto {
   @IsString()
   @IsNotEmpty()
-  value: string;
+  readonly value: string;
 }

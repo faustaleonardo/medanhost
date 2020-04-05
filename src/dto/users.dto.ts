@@ -1,29 +1,33 @@
-import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
-  googleId: string;
+  readonly googleId: string;
 
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  readonly email: string;
 
   @IsString()
   @IsNotEmpty()
-  firstName: string;
+  readonly firstName: string;
 
   @IsString()
   @IsNotEmpty()
-  lastName: string;
+  readonly lastName: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  readonly roleId: number;
 }
 
 export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
-  firstName: string;
+  readonly firstName: string;
 
   @IsString()
   @IsNotEmpty()
-  lastName: string;
+  readonly lastName: string;
 }
