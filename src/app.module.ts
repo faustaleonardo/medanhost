@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TypesModule } from './types/types.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { AppService } from './app.service';
     TypeOrmModule.forRoot(),
     UsersModule,
     RolesModule,
+    TypesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
