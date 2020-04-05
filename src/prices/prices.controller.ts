@@ -19,8 +19,8 @@ export class PricesController {
   constructor(private readonly serv: PricesService) {}
 
   @Post()
-  create(@Body() prices: [CreatePriceDto]): Promise<Price[]> {
-    return this.serv.create(prices);
+  create(@Body() dto: [CreatePriceDto]): Promise<Price[]> {
+    return this.serv.create(dto);
   }
 
   @Get()

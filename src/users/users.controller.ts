@@ -19,8 +19,8 @@ export class UsersController {
   constructor(private readonly serv: UsersService) {}
 
   @Post()
-  create(@Body() user: CreateUserDto): Promise<User> {
-    return this.serv.create(user);
+  create(@Body() dto: CreateUserDto): Promise<User> {
+    return this.serv.create(dto);
   }
 
   @Get()
@@ -34,8 +34,8 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() user: UpdateUserDto): Promise<User> {
-    return this.serv.update(id, user);
+  update(@Param('id') id: number, @Body() dto: UpdateUserDto): Promise<User> {
+    return this.serv.update(id, dto);
   }
 
   @Delete(':id')
