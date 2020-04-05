@@ -6,12 +6,15 @@ import {
   Delete,
   Body,
   Param,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CitiesService } from './cities.service';
 import { City } from '../model/city.entity';
 import { CreateCityDto, UpdateCityDto } from '../dto/cities.dto';
+import { NotFoundInterceptor } from '../interceptors/errors.interceptor';
 
 @Controller('api/v1/cities')
+@UseInterceptors(new NotFoundInterceptor())
 export class CitiesController {
   constructor(private readonly serv: CitiesService) {}
 

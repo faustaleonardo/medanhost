@@ -34,8 +34,8 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() dto: UpdateUserDto): Promise<User> {
-    return this.serv.update(id, dto);
+  update(@Param('id') id: number, @Body() user: UpdateUserDto): Promise<User> {
+    return this.serv.update(id, user);
   }
 
   @Delete(':id')

@@ -6,12 +6,15 @@ import {
   Delete,
   Body,
   Param,
+  UseInterceptors,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { Role } from '../model/role.entity';
 import { CreateRoleDto, UpdateRoleDto } from '../dto/roles.dto';
+import { NotFoundInterceptor } from '../interceptors/errors.interceptor';
 
 @Controller('api/v1/roles')
+@UseInterceptors(new NotFoundInterceptor())
 export class RolesController {
   constructor(private readonly serv: RolesService) {}
 
