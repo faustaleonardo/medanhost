@@ -1,6 +1,11 @@
 export class CreateUserDto {
-  id: number;
   googleId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export class UpdateUserDto {
   firstName: string;
   lastName: string;
 }

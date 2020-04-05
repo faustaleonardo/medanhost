@@ -9,6 +9,9 @@ export class User {
   googleId: string;
 
   @Column()
+  email: string;
+
+  @Column()
   firstName: string;
 
   @Column()
