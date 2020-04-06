@@ -1,10 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 import { Room } from './room.entity';
 
@@ -12,9 +6,6 @@ import { Room } from './room.entity';
 export class Price {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  roomId: number;
 
   @Column()
   guests: number;

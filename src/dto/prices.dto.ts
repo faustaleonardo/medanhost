@@ -17,13 +17,5 @@ export class CreatePriceDto {
 export class UpdatePriceDto {
   @IsNumber()
   @IsNotEmpty()
-  readonly roomId: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  readonly guests: number;
-
-  @IsNumber()
-  @IsNotEmpty()
   readonly price: number;
 }

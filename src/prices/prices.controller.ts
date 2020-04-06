@@ -19,7 +19,7 @@ export class PricesController {
   constructor(private readonly serv: PricesService) {}
 
   @Post()
-  create(@Body() dto: [CreatePriceDto]): Promise<Price[]> {
+  create(@Body() dto: CreatePriceDto): Promise<Price> {
     return this.serv.create(dto);
   }
 
@@ -28,26 +28,18 @@ export class PricesController {
     return this.serv.findAll();
   }
 
-  @Get('/rooms/:roomId')
-  findAllByRoomId(@Param() roomId: number): Promise<Price[]> {
-    return this.serv.findAllByRoomId(roomId);
-  }
-
   @Get(':id')
   findOne(@Param('id') id: number): Promise<Price> {
     return this.serv.findOne(id);
   }
 
-  @Patch('/rooms/:roomId')
-  update(
-    @Param() roomId: number,
-    @Body() prices: [UpdatePriceDto],
-  ): Promise<Price[]> {
-    return this.serv.update(roomId, prices);
+  @Patch('/:id')
+  update(@Param() id: number, @Body() dto: UpdatePriceDto): Promise<Price> {
+    return this.serv.update(id, dto);
   }
 
-  @Delete('/rooms/:roomId')
-  delete(@Param('roomId') roomId: number) {
-    return this.serv.deleteAllByRoomId(roomId);
+  @Delete('/:id')
+  delete(@Param('id') id: number) {
+    return this.serv.delete(id);
   }
 }

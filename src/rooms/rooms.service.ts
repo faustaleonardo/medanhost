@@ -57,13 +57,13 @@ export class RoomsService {
 
   async findAll(): Promise<Room[]> {
     return await this.repo.find({
-      relations: ['user', 'type', 'city', 'bookmarks'],
+      relations: ['user', 'type', 'city', 'bookmarks', 'prices'],
     });
   }
 
   async findOne(id: number): Promise<Room> {
     const Room = await this.repo.findOne(id, {
-      relations: ['user', 'type', 'city', 'bookmarks'],
+      relations: ['user', 'type', 'city', 'bookmarks', 'prices'],
     });
     if (!Room) throw new NotFoundException();
 
@@ -104,7 +104,9 @@ export class RoomsService {
 
     await this.repo.save(room);
 
-    return this.repo.findOne(id, { relations: ['user', 'type', 'city'] });
+    return this.repo.findOne(id, {
+      relations: ['user', 'type', 'city'],
+    });
   }
 
   async delete(id: number): Promise<void> {

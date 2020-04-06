@@ -12,33 +12,20 @@ export class PricesService {
     private readonly roomsService: RoomsService,
   ) {}
 
-  private async createPrices(dto: any): Promise<Price[]> {
-    let room: any;
-    for (const el of dto) {
-      const { price, guests, roomId } = el;
+  async create(dto: CreatePriceDto): Promise<Price> {
+    const { price, guests, roomId } = dto;
 
-      const newPrice = new Price();
-      newPrice.price = price;
-      newPrice.guests = guests;
+    const newPrice = new Price();
+    newPrice.price = price;
+    newPrice.guests = guests;
 
-      room = await this.roomsService.findOne(roomId);
-      newPrice.room = room;
-      await this.repo.save(newPrice);
-    }
-
-    return await this.repo.find({ roomId: room.id });
-  }
-
-  async create(dto: [CreatePriceDto]): Promise<Price[]> {
-    return await this.createPrices(dto);
+    const room = await this.roomsService.findOne(roomId);
+    newPrice.room = room;
+    return await this.repo.save(newPrice);
   }
 
   async findAll(): Promise<Price[]> {
-    return await this.repo.find();
-  }
-
-  async findAllByRoomId(roomId: number): Promise<Price[]> {
-    return await this.repo.find({ roomId });
+    return await this.repo.find({ relations: ['room'] });
   }
 
   async findOne(id: number): Promise<Price> {
@@ -48,19 +35,19 @@ export class PricesService {
     return price;
   }
 
-  async update(roomId: number, dto: [UpdatePriceDto]): Promise<Price[]> {
-    const room = await this.repo.findOne({ roomId });
-    if (!room) throw new NotFoundException();
+  async update(id: number, dto: UpdatePriceDto): Promise<Price> {
+    const { price } = dto;
 
-    await this.repo.delete(roomId);
+    const existingPrice = await this.repo.findOne(id);
+    existingPrice.price = price;
 
-    return await this.createPrices(dto);
+    return await this.repo.save(existingPrice);
   }
 
-  async deleteAllByRoomId(roomId: number): Promise<void> {
-    const room = await this.repo.findOne({ roomId });
-    if (!room) throw new NotFoundException();
+  async delete(id: number): Promise<void> {
+    const price = await this.repo.findOne(id);
+    if (!price) throw new NotFoundException();
 
-    this.repo.delete({ roomId });
+    this.repo.delete(price);
   }
 }
