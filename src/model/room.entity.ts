@@ -5,10 +5,12 @@ import {
   ManyToMany,
   JoinColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Type } from './type.entity';
 import { City } from './city.entity';
+import { Price } from './price.entity';
 
 @Entity()
 export class Room {
@@ -50,6 +52,13 @@ export class Room {
     city => city.rooms,
   )
   city: City;
+
+  @OneToMany(
+    () => Price,
+    price => price.room,
+  )
+  @JoinColumn()
+  prices: Price[];
 
   @ManyToMany(
     () => User,

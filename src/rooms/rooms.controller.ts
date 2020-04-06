@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { Room } from '../model/Room.entity';
-import { CreateRoomDto, UpdateRoomDto } from '../dto/rooms.dto';
+import { CreateRoomDto } from '../dto/rooms.dto';
 import { NotFoundInterceptor } from '../interceptors/errors.interceptor';
 
 @Controller('api/v1/rooms')
@@ -34,8 +34,8 @@ export class RoomsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() dto: UpdateRoomDto): Promise<Room> {
-    return this.serv.update(id, dto);
+  update(@Param('id') id: number, @Body() data: any): Promise<Room> {
+    return this.serv.update(id, data);
   }
 
   @Delete(':id')

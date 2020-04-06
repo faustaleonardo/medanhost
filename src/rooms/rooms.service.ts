@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Room } from '../model/room.entity';
-import { CreateRoomDto, UpdateRoomDto } from '../dto/rooms.dto';
+import { CreateRoomDto } from '../dto/rooms.dto';
 import { UsersService } from '../users/users.service';
 import { TypesService } from '../types/types.service';
 import { CitiesService } from '../cities/cities.service';
@@ -56,17 +56,21 @@ export class RoomsService {
   }
 
   async findAll(): Promise<Room[]> {
-    return await this.repo.find();
+    return await this.repo.find({
+      relations: ['user', 'type', 'city', 'bookmarks'],
+    });
   }
 
   async findOne(id: number): Promise<Room> {
-    const Room = await this.repo.findOne(id, { relations: ['bookmarks'] });
+    const Room = await this.repo.findOne(id, {
+      relations: ['user', 'type', 'city', 'bookmarks'],
+    });
     if (!Room) throw new NotFoundException();
 
     return Room;
   }
 
-  async update(id: number, dto: UpdateRoomDto): Promise<Room> {
+  async update(id: number, data: any): Promise<Room> {
     const {
       name,
       typeId,
@@ -76,7 +80,7 @@ export class RoomsService {
       beds,
       baths,
       description,
-    } = dto;
+    } = data;
 
     const room = await this.repo.findOne(id);
     if (!room) throw new NotFoundException();
@@ -88,13 +92,19 @@ export class RoomsService {
     if (baths) room.baths = baths;
     if (description) room.description = description;
 
-    const type = await this.typesServ.findOne(typeId);
-    room.type = type;
+    if (typeId) {
+      const type = await this.typesServ.findOne(typeId);
+      room.type = type;
+    }
 
-    const city = await this.citiesServ.findOne(cityId);
-    room.city = city;
+    if (cityId) {
+      const city = await this.citiesServ.findOne(cityId);
+      room.city = city;
+    }
 
-    return await this.repo.save(room);
+    await this.repo.save(room);
+
+    return this.repo.findOne(id, { relations: ['user', 'type', 'city'] });
   }
 
   async delete(id: number): Promise<void> {

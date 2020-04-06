@@ -2,7 +2,7 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
+  ManyToOne,
   JoinColumn,
 } from 'typeorm';
 
@@ -22,8 +22,9 @@ export class Price {
   @Column('decimal')
   price: number;
 
-  @OneToOne(() => Room)
-  @JoinColumn()
+  @ManyToOne(
+    () => Room,
+    room => room.prices,
+  )
   room: Room;
-  k;
 }
