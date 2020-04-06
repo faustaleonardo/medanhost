@@ -65,6 +65,10 @@ export class UsersService {
     return user;
   }
 
+  async findOneByThirdPartyId(thirdPartyId: string): Promise<User> {
+    return await this.repo.findOne({ googleId: thirdPartyId });
+  }
+
   async update(id: number, dto: UpdateUserDto): Promise<User> {
     const { firstName, lastName } = dto;
 
