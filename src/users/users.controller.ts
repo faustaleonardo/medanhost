@@ -11,7 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { User } from '../model/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto/users.dto';
-import { CreateBookmarkDto } from '../dto/bookmarks.tdo';
+import { CreateBookmarkDto } from '../dto/bookmarks.dto';
 import { NotFoundInterceptor } from '../interceptors/errors.interceptor';
 
 @Controller('api/v1/users')

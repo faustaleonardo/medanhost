@@ -11,6 +11,7 @@ import { User } from './user.entity';
 import { Type } from './type.entity';
 import { City } from './city.entity';
 import { Price } from './price.entity';
+import { Picture } from './picture.entity';
 
 @Entity()
 export class Room {
@@ -59,6 +60,13 @@ export class Room {
   )
   @JoinColumn()
   prices: Price[];
+
+  @OneToMany(
+    () => Picture,
+    picture => picture.room,
+  )
+  @JoinColumn()
+  pictures: Picture[];
 
   @ManyToMany(
     () => User,

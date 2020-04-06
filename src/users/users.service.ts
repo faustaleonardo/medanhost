@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../model/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto/users.dto';
-import { CreateBookmarkDto } from '../dto/bookmarks.tdo';
+import { CreateBookmarkDto } from '../dto/bookmarks.dto';
 import { RolesService } from '../roles/roles.service';
 import { RoomsService } from '../rooms/rooms.service';
 
@@ -40,10 +40,11 @@ export class UsersService {
   async bookmark(dto: CreateBookmarkDto): Promise<User> {
     // change to auth user later
     const userId = 1;
-    const id = dto.roomId;
+    const { roomId } = dto;
 
     const user = await this.repo.findOne(userId);
-    const room = await this.roomsServ.findOne(id);
+    const room = await this.roomsServ.findOne(roomId);
+
     if (user.bookmarks instanceof Array) {
       user.bookmarks = [...user.bookmarks, room];
     } else user.bookmarks = [room];
