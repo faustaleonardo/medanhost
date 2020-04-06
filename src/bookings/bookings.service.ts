@@ -73,6 +73,8 @@ export class BookingsService {
     if (statusPayment !== undefined) booking.statusPayment = statusPayment;
     if (active !== undefined) booking.active = active;
 
+    booking.updatedAt = new Date();
+
     return await this.repo.save(booking);
   }
 }

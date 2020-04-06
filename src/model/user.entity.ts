@@ -11,6 +11,7 @@ import {
 import { Role } from './role.entity';
 import { Room } from './room.entity';
 import { Booking } from './booking.entity';
+import { Review } from './review.entity';
 
 @Entity()
 export class User {
@@ -50,6 +51,13 @@ export class User {
   )
   @JoinColumn()
   bookings: Booking[];
+
+  @OneToMany(
+    () => Review,
+    review => review.user,
+  )
+  @JoinColumn()
+  reviews: Review[];
 
   @ManyToMany(
     () => Room,

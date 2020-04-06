@@ -13,6 +13,7 @@ import { City } from './city.entity';
 import { Price } from './price.entity';
 import { Picture } from './picture.entity';
 import { Booking } from './booking.entity';
+import { Review } from './review.entity';
 
 @Entity()
 export class Room {
@@ -75,6 +76,13 @@ export class Room {
   )
   @JoinColumn()
   bookings: Booking[];
+
+  @OneToMany(
+    () => Review,
+    review => review.room,
+  )
+  @JoinColumn()
+  reviews: Review[];
 
   @ManyToMany(
     () => User,

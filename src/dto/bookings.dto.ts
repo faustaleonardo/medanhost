@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsDate, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsDate } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateBookingDto {
