@@ -9,6 +9,7 @@ import { TypesModule } from './types/types.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { PricesModule } from './prices/prices.module';
 import { PicturesModule } from './pictures/pictures.module';
+import { BookingsModule } from './bookings/bookings.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PicturesModule } from './pictures/pictures.module';
     RoomsModule,
     PricesModule,
     PicturesModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

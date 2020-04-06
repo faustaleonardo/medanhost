@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Role } from './role.entity';
 import { Room } from './room.entity';
+import { Booking } from './booking.entity';
 
 @Entity()
 export class User {
@@ -34,12 +35,21 @@ export class User {
   )
   role: Role;
 
+  // host
   @OneToMany(
     () => Room,
     room => room.user,
   )
   @JoinColumn()
   rooms: Room[];
+
+  // guest
+  @OneToMany(
+    () => Booking,
+    booking => booking.user,
+  )
+  @JoinColumn()
+  bookings: Booking[];
 
   @ManyToMany(
     () => Room,
