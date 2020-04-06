@@ -1,15 +1,10 @@
 import { IsNotEmpty, IsNumber, IsDate, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateRoomDto {
+export class CreateBookingDto {
   @IsNumber()
   @IsNotEmpty()
   readonly roomId: number;
-
-  // guest
-  @IsNumber()
-  @IsNotEmpty()
-  readonly userId: number;
 
   @IsDate()
   @Type(() => Date)
@@ -28,27 +23,4 @@ export class CreateRoomDto {
   @IsNumber()
   @IsNotEmpty()
   readonly price: number;
-
-  @IsBoolean()
-  @IsNotEmpty()
-  readonly statusPayment: boolean;
-
-  @IsBoolean()
-  @IsNotEmpty()
-  readonly active: boolean;
-
-  @IsDate()
-  @Type(() => Date)
-  @IsNotEmpty()
-  readonly expiredDate: Date;
-
-  @IsDate()
-  @Type(() => Date)
-  @IsNotEmpty()
-  readonly createdAt: Date;
-
-  @IsDate()
-  @Type(() => Date)
-  @IsNotEmpty()
-  readonly updatedAt: Date;
 }
