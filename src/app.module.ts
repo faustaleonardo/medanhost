@@ -8,7 +8,6 @@ import { AppService } from './app.service';
 import { TypesModule } from './types/types.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { PricesModule } from './prices/prices.module';
-import { BookmarksModule } from './bookmarks/bookmarks.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
     TypesModule,
     RoomsModule,
     PricesModule,
-    BookmarksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

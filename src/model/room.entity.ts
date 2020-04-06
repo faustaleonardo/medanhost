@@ -2,8 +2,9 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
+  ManyToMany,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Type } from './type.entity';
@@ -32,15 +33,28 @@ export class Room {
   @Column('text')
   description: string;
 
-  @OneToOne(() => User)
-  @JoinColumn()
+  @ManyToOne(
+    () => User,
+    user => user.rooms,
+  )
   user: User;
 
-  @OneToOne(() => Type)
-  @JoinColumn()
+  @ManyToOne(
+    () => Type,
+    type => type.rooms,
+  )
   type: Type;
 
-  @OneToOne(() => City)
-  @JoinColumn()
+  @ManyToOne(
+    () => City,
+    city => city.rooms,
+  )
   city: City;
+
+  @ManyToMany(
+    () => User,
+    user => user.bookmarks,
+  )
+  @JoinColumn()
+  bookmarks: User[];
 }

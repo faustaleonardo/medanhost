@@ -11,6 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { User } from '../model/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto/users.dto';
+import { CreateBookmarkDto } from '../dto/bookmarks.tdo';
 import { NotFoundInterceptor } from '../interceptors/errors.interceptor';
 
 @Controller('api/v1/users')
@@ -21,6 +22,11 @@ export class UsersController {
   @Post()
   create(@Body() dto: CreateUserDto): Promise<User> {
     return this.serv.create(dto);
+  }
+
+  @Post('/bookmarks')
+  bookmark(@Body() dto: CreateBookmarkDto): Promise<User> {
+    return this.serv.bookmark(dto);
   }
 
   @Get()

@@ -2,10 +2,14 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
+  ManyToOne,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
   JoinColumn,
 } from 'typeorm';
 import { Role } from './role.entity';
+import { Room } from './room.entity';
 
 @Entity()
 export class User {
@@ -24,7 +28,23 @@ export class User {
   @Column()
   lastName: string;
 
-  @OneToOne(() => Role)
-  @JoinColumn()
+  @ManyToOne(
+    () => Role,
+    role => role.users,
+  )
   role: Role;
+
+  @OneToMany(
+    () => Room,
+    room => room.user,
+  )
+  @JoinColumn()
+  rooms: Room[];
+
+  @ManyToMany(
+    () => Room,
+    room => room.bookmarks,
+  )
+  @JoinTable()
+  bookmarks: Room[];
 }

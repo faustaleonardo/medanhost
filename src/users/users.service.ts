@@ -1,15 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../model/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto/users.dto';
+import { CreateBookmarkDto } from '../dto/bookmarks.tdo';
 import { RolesService } from '../roles/roles.service';
+import { RoomsService } from '../rooms/rooms.service';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User) private readonly repo: Repository<User>,
+    @InjectRepository(User)
+    private readonly repo: Repository<User>,
     private readonly rolesServ: RolesService,
+    @Inject(forwardRef(() => RoomsService))
+    private readonly roomsServ: RoomsService,
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
@@ -27,12 +37,28 @@ export class UsersService {
     return await this.repo.save(newUser);
   }
 
+  async bookmark(dto: CreateBookmarkDto): Promise<User> {
+    // change to auth user later
+    const userId = 1;
+    const id = dto.roomId;
+
+    const user = await this.repo.findOne(userId);
+    const room = await this.roomsServ.findOne(id);
+    if (user.bookmarks instanceof Array) {
+      user.bookmarks = [...user.bookmarks, room];
+    } else user.bookmarks = [room];
+
+    return await this.repo.save(user);
+  }
+
   async findAll(): Promise<User[]> {
-    return await this.repo.find();
+    return await this.repo.find({ relations: ['role', 'bookmarks'] });
   }
 
   async findOne(id: number): Promise<User> {
-    const user = await this.repo.findOne(id);
+    const user = await this.repo.findOne(id, {
+      relations: ['role', 'bookmarks'],
+    });
     if (!user) throw new NotFoundException();
 
     return user;

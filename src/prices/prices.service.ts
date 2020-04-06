@@ -12,9 +12,9 @@ export class PricesService {
     private readonly roomsService: RoomsService,
   ) {}
 
-  private async createPrices(prices: any): Promise<Price[]> {
+  private async createPrices(dto: any): Promise<Price[]> {
     let room: any;
-    for (const el of prices) {
+    for (const el of dto) {
       const { price, guests, roomId } = el;
 
       const newPrice = new Price();
@@ -29,8 +29,8 @@ export class PricesService {
     return await this.repo.find({ roomId: room.id });
   }
 
-  async create(prices: [CreatePriceDto]): Promise<Price[]> {
-    return await this.createPrices(prices);
+  async create(dto: [CreatePriceDto]): Promise<Price[]> {
+    return await this.createPrices(dto);
   }
 
   async findAll(): Promise<Price[]> {
@@ -48,13 +48,13 @@ export class PricesService {
     return price;
   }
 
-  async update(roomId: number, prices: [UpdatePriceDto]): Promise<Price[]> {
+  async update(roomId: number, dto: [UpdatePriceDto]): Promise<Price[]> {
     const room = await this.repo.findOne({ roomId });
     if (!room) throw new NotFoundException();
 
     await this.repo.delete(roomId);
 
-    return await this.createPrices(prices);
+    return await this.createPrices(dto);
   }
 
   async deleteAllByRoomId(roomId: number): Promise<void> {

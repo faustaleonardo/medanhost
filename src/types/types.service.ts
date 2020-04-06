@@ -10,8 +10,8 @@ export class TypesService {
     @InjectRepository(Type) private readonly repo: Repository<Type>,
   ) {}
 
-  async create(type: CreateTypeDto): Promise<Type> {
-    const { value } = type;
+  async create(dto: CreateTypeDto): Promise<Type> {
+    const { value } = dto;
 
     const newType = new Type();
     newType.value = value;

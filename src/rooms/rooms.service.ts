@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Room } from '../model/room.entity';
@@ -10,10 +15,12 @@ import { CitiesService } from '../cities/cities.service';
 @Injectable()
 export class RoomsService {
   constructor(
-    @InjectRepository(Room) private readonly repo: Repository<Room>,
-    private readonly usersServ: UsersService,
+    @InjectRepository(Room)
+    private readonly repo: Repository<Room>,
     private readonly typesServ: TypesService,
     private readonly citiesServ: CitiesService,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersServ: UsersService,
   ) {}
 
   async create(dto: CreateRoomDto): Promise<Room> {
@@ -53,7 +60,7 @@ export class RoomsService {
   }
 
   async findOne(id: number): Promise<Room> {
-    const Room = await this.repo.findOne(id);
+    const Room = await this.repo.findOne(id, { relations: ['bookmarks'] });
     if (!Room) throw new NotFoundException();
 
     return Room;

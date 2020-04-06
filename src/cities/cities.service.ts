@@ -10,8 +10,8 @@ export class CitiesService {
     @InjectRepository(City) private readonly repo: Repository<City>,
   ) {}
 
-  async create(city: CreateCityDto): Promise<City> {
-    const { value } = city;
+  async create(dto: CreateCityDto): Promise<City> {
+    const { value } = dto;
 
     const newCity = new City();
     newCity.value = value;
