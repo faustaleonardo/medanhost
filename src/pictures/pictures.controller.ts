@@ -4,13 +4,13 @@ import {
   Post,
   Delete,
   Param,
-  Body,
   UseInterceptors,
   UseGuards,
+  Req,
+  Res,
 } from '@nestjs/common';
 import { PicturesService } from './pictures.service';
 import { Picture } from '../model/picture.entity';
-import { CreatePictureDto } from '../dto/pictures.dto';
 import { NotFoundInterceptor } from '../interceptors/errors.interceptor';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -20,9 +20,13 @@ export class PicturesController {
   constructor(private readonly serv: PicturesService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Post()
-  create(@Body() dto: CreatePictureDto): Promise<Picture> {
-    return this.serv.create(dto);
+  @Post('rooms/:roomId')
+  create(
+    @Param('roomId') roomId: number,
+    @Req() req: any,
+    @Res() res: any,
+  ): Promise<Picture[]> {
+    return this.serv.create(roomId, req, res);
   }
 
   @UseGuards(JwtAuthGuard)
