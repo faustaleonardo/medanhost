@@ -1,9 +1,7 @@
 import { IsString, IsEmail, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateUserDto {
-  @IsString()
-  @IsNotEmpty()
-  readonly googleId: string;
+  readonly googleId: string | null;
 
   @IsEmail()
   @IsNotEmpty()

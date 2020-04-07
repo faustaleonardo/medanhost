@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as htmlToText from 'html-to-text';
-import * as pug from 'pug';
+import emailTemplate from './emailTemplate';
 
 interface Credentials {
   [key: string]: string;
@@ -14,29 +14,28 @@ export class EmailService {
   private _otpCode: number;
   private _from = 'no-reply@medanhost.xyz';
 
-  setUp(credentials: Credentials, otpCode: number) {
-    this._firstName = credentials.firstName;
-    this._to = credentials.email;
-    this._otpCode = otpCode;
-  }
+  _newTransport(): any {
+    // for development
+    // return nodemailer.createTransport({
+    //   host: process.env.EMAIL_HOST,
+    //   port: Number(process.env.EMAIL_PORT),
+    //   auth: {
+    //     user: process.env.EMAIL_USERNAME,
+    //     pass: process.env.EMAIL_PASSWORD,
+    //   },
+    // });
 
-  newTransport(): any {
     return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: Number(process.env.EMAIL_PORT),
+      service: 'SendGrid',
       auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
+        user: process.env.SENDGRID_USERNAME,
+        pass: process.env.SENDGRID_PASSWORD,
       },
     });
   }
 
-  async send(template: string, subject: string): Promise<void> {
-    const html = pug.renderFile(`../views/${template}.pug`, {
-      firstName: this._firstName,
-      otpCode: this._otpCode,
-      subject,
-    });
+  async _send(subject: string): Promise<void> {
+    const html = emailTemplate(this._firstName, this._otpCode);
 
     const mailOptions = {
       from: this._from,
@@ -46,10 +45,14 @@ export class EmailService {
       text: htmlToText.fromString(html),
     };
 
-    await this.newTransport().sendMail(mailOptions);
+    await this._newTransport().sendMail(mailOptions);
   }
 
-  async sendOtpCode(): Promise<void> {
-    await this.send('otpCode', 'Medanhost OTP Code');
+  async sendOtpCode(credentials: Credentials, otpCode: number): Promise<void> {
+    this._firstName = credentials.firstName;
+    this._to = credentials.email;
+    this._otpCode = otpCode;
+
+    await this._send('Medanhost OTP Code');
   }
 }

@@ -18,8 +18,8 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  googleId: string;
+  @Column({ nullable: true, type: 'varchar' })
+  googleId: string | null;
 
   @Column()
   email: string;

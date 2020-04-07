@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { CreateOtpDto } from '../dto/otps.dto';
+import { CreateOtpDto, VerifyOtpDto } from '../dto/otps.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -28,9 +28,13 @@ export class AuthController {
     return jwt ? jwt : new InternalServerErrorException();
   }
 
-  @Post('otp')
-  sendOTPCode(@Body() dto: CreateOtpDto): void {
-    const { email } = dto;
-    this.serv.sendOTPCode(email);
+  @Post('otp/create')
+  createOTPCode(@Body() dto: CreateOtpDto): Promise<string> {
+    return this.serv.createOTPCode(dto);
+  }
+
+  @Post('otp/verify')
+  verifyOTPCode(@Body() dto: VerifyOtpDto): Promise<string> {
+    return this.serv.verifyOTPCode(dto);
   }
 }

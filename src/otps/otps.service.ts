@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Otp } from '../model/otp.entity';
@@ -42,7 +47,16 @@ export class OtpsService {
     return otp;
   }
 
-  async update(email: string): Promise<Otp> {
+  async findOneByCode(code: number): Promise<Otp> {
+    return await this.repo.findOne({ code });
+  }
+
+  async findOneByEmail(email: string): Promise<Otp> {
+    return await this.repo.findOne({ email });
+  }
+
+  async update(dto: CreateOtpDto): Promise<Otp> {
+    const { email } = dto;
     const otp = await this.repo.findOne({ email });
     if (!otp) throw new NotFoundException();
 
