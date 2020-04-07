@@ -1,5 +1,12 @@
-import { Controller, Get, UseGuards, Res, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -11,14 +18,13 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleLoginCallback(@Req() req: any, @Res() res: any) {
-    const jwt = req.user.jwt;
-    if (jwt) res.redirect('http://localhost:5000/login/success' + jwt);
-    else res.redirect('http://localhost:5000/login/failure');
+  googleLoginCallback(@Req() req: any) {
+    const { jwt } = req.user;
+    return jwt ? jwt : new InternalServerErrorException();
   }
 
   @Get('protected')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   protectedResource() {
     return 'JWT is working';
   }

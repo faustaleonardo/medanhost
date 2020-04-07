@@ -14,10 +14,8 @@ export class AuthService {
 
   async validateOAuthLogin(profile: any, provider: Provider): Promise<string> {
     try {
-      const existingUser = await this.usersServ.findOneByThirdPartyId(
-        profile.id,
-      );
-      if (!existingUser) {
+      let user = await this.usersServ.findOneByThirdPartyId(profile.id);
+      if (!user) {
         // create new user
         const { sub, email } = profile._json;
         const firstName = profile._json.given_name;
@@ -30,15 +28,14 @@ export class AuthService {
           lastName,
           roleId: 2, // host
         };
-        const user = await this.usersServ.create(newUser);
-
-        // create jwt
-        const payload = { id: user.id, provider };
-        const jwt = sign(payload, this.jwtSecretKey, {
-          expiresIn: 3600,
-        });
-        return jwt;
+        user = await this.usersServ.create(newUser);
       }
+      // create jwt
+      const payload = { id: user.id, provider };
+      const jwt = sign(payload, this.jwtSecretKey, {
+        expiresIn: 30 * 24 * 60 * 60 * 1000,
+      });
+      return jwt;
     } catch (err) {
       throw new InternalServerErrorException('validateOAuthLogin', err.message);
     }
