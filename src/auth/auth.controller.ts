@@ -1,15 +1,20 @@
 import {
   Controller,
+  Post,
   Get,
   UseGuards,
   Req,
+  Body,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { AuthService } from './auth.service';
+import { CreateOtpDto } from '../dto/otps.dto';
 
 @Controller('auth')
 export class AuthController {
+  constructor(private readonly serv: AuthService) {}
+
   @Get('google')
   @UseGuards(AuthGuard('google'))
   googleLogin() {
@@ -23,9 +28,9 @@ export class AuthController {
     return jwt ? jwt : new InternalServerErrorException();
   }
 
-  @Get('protected')
-  @UseGuards(JwtAuthGuard)
-  protectedResource() {
-    return 'JWT is working';
+  @Post('otp')
+  sendOTPCode(@Body() dto: CreateOtpDto): void {
+    const { email } = dto;
+    this.serv.sendOTPCode(email);
   }
 }

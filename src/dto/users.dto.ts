@@ -13,9 +13,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   readonly firstName: string;
 
-  @IsString()
-  @IsNotEmpty()
-  readonly lastName: string;
+  readonly lastName: string | null;
 
   @IsNumber()
   @IsNotEmpty()

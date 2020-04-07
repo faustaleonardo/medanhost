@@ -12,6 +12,8 @@ import { PicturesModule } from './pictures/pictures.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { AuthModule } from './auth/auth.module';
+import { EmailModule } from './email/email.module';
+import { OtpsModule } from './otps/otps.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { AuthModule } from './auth/auth.module';
     BookingsModule,
     ReviewsModule,
     AuthModule,
+    EmailModule,
+    OtpsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -50,26 +50,26 @@ export class ReviewsService {
   }
 
   async findOne(id: number): Promise<Review> {
-    const Review = await this.repo.findOne(id, {
+    const review = await this.repo.findOne(id, {
       relations: ['user', 'room'],
     });
-    if (!Review) throw new NotFoundException();
+    if (!review) throw new NotFoundException();
 
-    return Review;
+    return review;
   }
 
   async update(id: number, data: any): Promise<Review> {
     const { ratings, comments } = data;
 
-    const Review = await this.repo.findOne(id);
-    if (!Review) throw new NotFoundException();
+    const review = await this.repo.findOne(id);
+    if (!review) throw new NotFoundException();
 
-    if (ratings !== undefined) Review.ratings = ratings;
-    if (comments !== undefined) Review.comments = comments;
+    if (ratings !== undefined) review.ratings = ratings;
+    if (comments !== undefined) review.comments = comments;
 
-    Review.updatedAt = new Date();
+    review.updatedAt = new Date();
 
-    return await this.repo.save(Review);
+    return await this.repo.save(review);
   }
 
   async delete(id: number): Promise<void> {

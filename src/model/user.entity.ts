@@ -27,8 +27,8 @@ export class User {
   @Column()
   firstName: string;
 
-  @Column()
-  lastName: string;
+  @Column({ nullable: true, type: 'varchar' })
+  lastName: string | null;
 
   @ManyToOne(
     () => Role,

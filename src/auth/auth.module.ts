@@ -4,9 +4,10 @@ import { AuthService } from './auth.service';
 import { GoogleStrategy } from './google.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, EmailModule],
   controllers: [AuthController],
   providers: [AuthService, GoogleStrategy, JwtStrategy],
   exports: [AuthService],
