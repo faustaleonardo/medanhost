@@ -42,6 +42,12 @@ export class PicturesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Delete('/rooms/:roomId')
+  deleteAll(@Param('roomId') roomId: number) {
+    return this.serv.deleteAll(roomId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   delete(@Param('id') id: number) {
     return this.serv.delete(id);

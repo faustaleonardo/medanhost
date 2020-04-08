@@ -27,7 +27,7 @@ export class PicturesService {
     private readonly roomsService: RoomsService,
   ) {}
 
-  _upload = multer({
+  private _upload = multer({
     storage: multerS3({
       s3: s3Config,
       bucket: process.env.S3_BUCKET,
@@ -37,6 +37,15 @@ export class PicturesService {
       },
     }),
   }).array('images');
+
+  private _deleteFile = params => {
+    return new Promise((resolve, reject) => {
+      s3Config.deleteObject(params, (err, data) => {
+        if (err) reject(err);
+        resolve(data);
+      });
+    });
+  };
 
   async create(
     roomId: number,
@@ -72,7 +81,6 @@ export class PicturesService {
 
     try {
       const pictures = await createPicturePromise();
-      console.log(pictures);
       return res.status(200).json({ pictures });
     } catch (err) {
       console.log(err);
@@ -94,11 +102,41 @@ export class PicturesService {
     return picture;
   }
 
+  async deleteAll(roomId: number) {
+    const room = await this.roomsService.findOne(roomId);
+    if (!room) throw new NotFoundException();
+
+    const pictures = await this.repo.find({ room });
+    try {
+      for (const picture of pictures) {
+        const key = picture.path.slice(50);
+        console.log('from deleteall', key);
+        const params = { Bucket: process.env.S3_BUCKET, Key: key };
+        await this._deleteFile(params);
+      }
+
+      await getConnection()
+        .createQueryBuilder()
+        .delete()
+        .from(Picture)
+        .where({ room })
+        .execute();
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async delete(id: number): Promise<void> {
     const picture = await this.repo.findOne(id);
     if (!picture) throw new NotFoundException();
 
-    // DELETING IMAGE - PENDING
-    this.repo.delete(picture);
+    try {
+      const key = picture.path.slice(50);
+      const params = { Bucket: process.env.S3_BUCKET, Key: key };
+      await this._deleteFile(params);
+      this.repo.delete(picture);
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
