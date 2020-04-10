@@ -110,7 +110,6 @@ export class PicturesService {
     try {
       for (const picture of pictures) {
         const key = picture.path.slice(50);
-        console.log('from deleteall', key);
         const params = { Bucket: process.env.S3_BUCKET, Key: key };
         await this._deleteFile(params);
       }
