@@ -1,8 +1,9 @@
 import {
   Injectable,
-  InternalServerErrorException,
   HttpStatus,
   HttpException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,6 +20,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersServ: UsersService,
     private readonly emailServ: EmailService,
     private readonly otpsServ: OtpsService,

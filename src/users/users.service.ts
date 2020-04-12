@@ -11,6 +11,7 @@ import { CreateUserDto, UpdateUserDto } from '../dto/users.dto';
 import { CreateBookmarkDto } from '../dto/bookmarks.dto';
 import { RolesService } from '../roles/roles.service';
 import { RoomsService } from '../rooms/rooms.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -20,11 +21,25 @@ export class UsersService {
     private readonly rolesServ: RolesService,
     @Inject(forwardRef(() => RoomsService))
     private readonly roomsServ: RoomsService,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authServ: AuthService,
   ) {}
 
-  async create(dto: CreateUserDto): Promise<User> {
+  async create(dto: CreateUserDto): Promise<any> {
+    let jwt: string;
     const { googleId, email, firstName, lastName, roleId } = dto;
 
+    // check if user exists
+    const existingUser = await this.repo.findOne({ email });
+    if (existingUser) {
+      jwt = this.authServ.generateJWT(existingUser);
+      return {
+        user: existingUser,
+        jwt,
+      };
+    }
+
+    // create new user
     const newUser = new User();
     newUser.googleId = googleId;
     newUser.email = email;
@@ -34,7 +49,12 @@ export class UsersService {
     const role = await this.rolesServ.findOne(roleId);
     newUser.role = role;
 
-    return await this.repo.save(newUser);
+    await this.repo.save(newUser);
+    jwt = this.authServ.generateJWT(newUser);
+    return {
+      user: newUser,
+      jwt,
+    };
   }
 
   async bookmark(dto: CreateBookmarkDto): Promise<User> {
