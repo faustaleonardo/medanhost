@@ -46,6 +46,11 @@ export class AuthService {
   // otp
   async createOTPCode(dto: CreateOtpDto): Promise<string> {
     const { email, roleId } = dto;
+    // if existing user try to login with wrong role
+    const user = await this.usersServ.findOneByEmail(email);
+    if (user && user.role.id !== roleId) {
+      throw new HttpException(`This email has been registered as a ${user.role.value}`, HttpStatus.FORBIDDEN);
+    }
 
     try {
       // create otp or update if it exists
@@ -62,6 +67,7 @@ export class AuthService {
       await this.emailServ.sendOtpCode(credentials, otp.code);
       return 'success';
     } catch (err) {
+      console.log(err);
       throw new HttpException(
         'Something went wrong. Try again later',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -70,29 +76,42 @@ export class AuthService {
   }
 
   async verifyOTPCode(dto: VerifyOtpDto): Promise<any> {
-    const { code } = dto;
-
+    const { code, roleId } = dto;
+    let role;
     const otp = await this.otpsServ.findOneByCode(code);
+
     if (otp) {
       if (otp.expiredTime < new Date()) {
         throw new HttpException(
-          'Code is no longer valid. Please create a new one',
+          'This OTP code is no longer valid. Please resend your email.',
           HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+
+      // if user try to verify OTP with wrong role
+      if (otp.roleId !== roleId) {
+        role = await this.rolesServ.findOne(otp.roleId);
+        throw new HttpException(
+          `This email has been registered as a ${role.value}.`,
+          HttpStatus.FORBIDDEN
         );
       }
 
       // if user exists
       const user = await this.usersServ.findOneByEmail(otp.email);
-      if (user) return {
-        user: user,
-        jwt: this.generateJWT(user)
+      if (user) {
+        await this.otpsServ.delete(otp.id);
+        return {
+          user: user,
+          jwt: this.generateJWT(user)
+        }
       }
 
       // create a new user
       const newUser = new User();
       newUser.email = otp.email;
       newUser.firstName = otp.firstName;
-      const role = await this.rolesServ.findOne(otp.roleId);
+      role = await this.rolesServ.findOne(otp.roleId);
       newUser.role = role;
 
       // delete otp from DB
@@ -100,7 +119,7 @@ export class AuthService {
       await this.userRepo.save(newUser);
       return {
         user: newUser,
-        jwt: this.generateJWT(user)
+        jwt: this.generateJWT(newUser)
       }
     } else {
       throw new HttpException(

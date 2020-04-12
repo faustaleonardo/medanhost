@@ -9,7 +9,7 @@ export default (firstName: string, otpCode: number): string => `
       <title>Medanhost OTP Code</title>
     </head>
     <body>
-      <p>Hello, ${firstName}</p>
+      <p>Hello,</p>
       <p>Thank you for joining us. Please use this code to login to Medanhost</p>
       <h1>${otpCode}</h1>
     </body>

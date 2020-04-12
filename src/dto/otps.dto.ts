@@ -14,4 +14,8 @@ export class VerifyOtpDto {
   @IsNumber()
   @IsNotEmpty()
   readonly code: number;
+  
+  @IsNumber()
+  @IsNotEmpty()
+  readonly roleId: number;
 }
