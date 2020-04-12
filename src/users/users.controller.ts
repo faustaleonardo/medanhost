@@ -8,6 +8,7 @@ import {
   Body,
   UseGuards,
   UseInterceptors,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../model/user.entity';
@@ -37,9 +38,11 @@ export class UsersController {
     return this.serv.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: number): Promise<User> {
-    return this.serv.findOne(id);
+  @UseGuards(JwtAuthGuard)
+  @Get('/auth')
+  findOne(@Request() req): Promise<User> {
+    const { id } = req.user;
+    return id ? this.serv.findOne(id) : null;
   }
 
   @UseGuards(JwtAuthGuard)
