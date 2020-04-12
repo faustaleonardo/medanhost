@@ -12,6 +12,9 @@ export class Otp {
   firstName: string;
 
   @Column()
+  roleId: number;
+
+  @Column()
   code: number;
 
   @Column()

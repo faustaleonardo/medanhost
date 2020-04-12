@@ -4,6 +4,10 @@ export class CreateOtpDto {
   @IsString()
   @IsNotEmpty()
   readonly email: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  readonly roleId: number;
 }
 
 export class VerifyOtpDto {

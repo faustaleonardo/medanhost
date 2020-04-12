@@ -45,13 +45,13 @@ export class AuthService {
 
   // otp
   async createOTPCode(dto: CreateOtpDto): Promise<string> {
-    const { email } = dto;
+    const { email, roleId } = dto;
 
     try {
-      // create otp or update it if it exists
+      // create otp or update if it exists
       let otp = await this.otpsServ.findOneByEmail(email);
-      if (otp) otp = await this.otpsServ.update({ email });
-      else otp = await this.otpsServ.create({ email });
+      if (otp) otp = await this.otpsServ.update({ email, roleId });
+      else otp = await this.otpsServ.create({ email, roleId });
 
       // send email
       const credentials = {
@@ -60,7 +60,7 @@ export class AuthService {
       };
 
       await this.emailServ.sendOtpCode(credentials, otp.code);
-      return 'Email has been sent! Please check your inbox.';
+      return 'success';
     } catch (err) {
       throw new HttpException(
         'Something went wrong. Try again later',
@@ -69,7 +69,7 @@ export class AuthService {
     }
   }
 
-  async verifyOTPCode(dto: VerifyOtpDto): Promise<string> {
+  async verifyOTPCode(dto: VerifyOtpDto): Promise<any> {
     const { code } = dto;
 
     const otp = await this.otpsServ.findOneByCode(code);
@@ -80,20 +80,28 @@ export class AuthService {
           HttpStatus.UNPROCESSABLE_ENTITY,
         );
       }
+
+      // if user exists
+      const user = await this.usersServ.findOneByEmail(otp.email);
+      if (user) return {
+        user: user,
+        jwt: this.generateJWT(user)
+      }
+
+      // create a new user
       const newUser = new User();
       newUser.email = otp.email;
       newUser.firstName = otp.firstName;
-
-      const roleId = 2; //guest
-      const role = await this.rolesServ.findOne(roleId);
+      const role = await this.rolesServ.findOne(otp.roleId);
       newUser.role = role;
 
       // delete otp from DB
       await this.otpsServ.delete(otp.id);
-
       await this.userRepo.save(newUser);
-
-      return this.generateJWT(newUser);
+      return {
+        user: newUser,
+        jwt: this.generateJWT(user)
+      }
     } else {
       throw new HttpException(
         'Invalid OTP Code',

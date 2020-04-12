@@ -3,6 +3,8 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
+  HttpException,
+  HttpStatus
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,8 +32,12 @@ export class UsersService {
     const { googleId, email, firstName, lastName, roleId } = dto;
 
     // check if user exists
-    const existingUser = await this.repo.findOne({ email });
+    const existingUser = await this.repo.findOne({ email }, {relations: ['role']});
     if (existingUser) {
+      if (existingUser.role.id !== roleId) {
+        throw new HttpException(`This email has been registered as a ${existingUser.role.value}!`, HttpStatus.FORBIDDEN);
+      }
+
       jwt = this.authServ.generateJWT(existingUser);
       return {
         user: existingUser,
@@ -85,12 +91,8 @@ export class UsersService {
     return user;
   }
 
-  async findOneByThirdPartyId(thirdPartyId: string): Promise<User> {
-    return await this.repo.findOne({ googleId: thirdPartyId });
-  }
-
   async findOneByEmail(email: string): Promise<User> {
-    return await this.repo.findOne({ email });
+    return await this.repo.findOne({ email }, {relations: ['role']});
   }
 
   async update(id: number, dto: UpdateUserDto): Promise<User> {

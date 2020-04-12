@@ -23,13 +23,13 @@ export class OtpsService {
   }
 
   async create(dto: CreateOtpDto): Promise<Otp> {
-    const { email } = dto;
+    const { email, roleId } = dto;
     const firstName = email.substring(0, email.indexOf('@'));
 
     const otp = new Otp();
     otp.email = email;
     otp.firstName = firstName;
-
+    otp.roleId = roleId;
     otp.expiredTime = this._getFiveMinutesFromNow();
     otp.code = this._generateCode();
 
@@ -56,8 +56,8 @@ export class OtpsService {
   }
 
   async update(dto: CreateOtpDto): Promise<Otp> {
-    const { email } = dto;
-    const otp = await this.repo.findOne({ email });
+    const { email, roleId } = dto;
+    const otp = await this.repo.findOne({ email, roleId });
     if (!otp) throw new NotFoundException();
 
     otp.code = this._generateCode();
