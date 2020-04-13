@@ -109,7 +109,8 @@ export class PicturesService {
     const pictures = await this.repo.find({ room });
     try {
       for (const picture of pictures) {
-        const key = picture.path.slice(50);
+        const index = picture.path.lastIndexOf('/') + 1;
+        const key = picture.path.slice(index);
         const params = { Bucket: process.env.S3_BUCKET, Key: key };
         await this._deleteFile(params);
       }
@@ -130,7 +131,8 @@ export class PicturesService {
     if (!picture) throw new NotFoundException();
 
     try {
-      const key = picture.path.slice(50);
+      const index = picture.path.lastIndexOf('/') + 1;
+      const key = picture.path.slice(index);
       const params = { Bucket: process.env.S3_BUCKET, Key: key };
       await this._deleteFile(params);
       this.repo.delete(picture);
