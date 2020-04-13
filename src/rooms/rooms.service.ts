@@ -10,7 +10,6 @@ import { Room } from '../model/room.entity';
 import { CreateRoomDto } from '../dto/rooms.dto';
 import { UsersService } from '../users/users.service';
 import { TypesService } from '../types/types.service';
-import { CitiesService } from '../cities/cities.service';
 
 @Injectable()
 export class RoomsService {
@@ -18,7 +17,6 @@ export class RoomsService {
     @InjectRepository(Room)
     private readonly repo: Repository<Room>,
     private readonly typesServ: TypesService,
-    private readonly citiesServ: CitiesService,
     @Inject(forwardRef(() => UsersService))
     private readonly usersServ: UsersService,
   ) {}
@@ -28,7 +26,6 @@ export class RoomsService {
       name,
       userId,
       typeId,
-      cityId,
       address,
       bedrooms,
       beds,
@@ -50,20 +47,18 @@ export class RoomsService {
     const type = await this.typesServ.findOne(typeId);
     newRoom.type = type;
 
-    const city = await this.citiesServ.findOne(cityId);
-    newRoom.city = city;
     return await this.repo.save(newRoom);
   }
 
   async findAll(): Promise<Room[]> {
     return await this.repo.find({
-      relations: ['user', 'type', 'city', 'bookmarks', 'prices', 'pictures'],
+      relations: ['user', 'type', 'bookmarks', 'pictures'],
     });
   }
 
   async findOne(id: number): Promise<Room> {
     const Room = await this.repo.findOne(id, {
-      relations: ['user', 'type', 'city', 'bookmarks', 'prices', 'pictures'],
+      relations: ['user', 'type', 'bookmarks', 'pictures'],
     });
     if (!Room) throw new NotFoundException();
 
@@ -71,16 +66,7 @@ export class RoomsService {
   }
 
   async update(id: number, data: any): Promise<Room> {
-    const {
-      name,
-      typeId,
-      cityId,
-      address,
-      bedrooms,
-      beds,
-      baths,
-      description,
-    } = data;
+    const { name, typeId, address, bedrooms, beds, baths, description } = data;
 
     const room = await this.repo.findOne(id);
     if (!room) throw new NotFoundException();
@@ -97,15 +83,10 @@ export class RoomsService {
       room.type = type;
     }
 
-    if (cityId) {
-      const city = await this.citiesServ.findOne(cityId);
-      room.city = city;
-    }
-
     await this.repo.save(room);
 
     return this.repo.findOne(id, {
-      relations: ['user', 'type', 'city'],
+      relations: ['user', 'type'],
     });
   }
 

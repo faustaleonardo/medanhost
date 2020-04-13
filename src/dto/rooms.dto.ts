@@ -14,10 +14,6 @@ export class CreateRoomDto {
   @IsNotEmpty()
   readonly typeId: number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  readonly cityId: number;
-
   @IsString()
   @IsNotEmpty()
   readonly address: string;
@@ -33,6 +29,14 @@ export class CreateRoomDto {
   @IsNumber()
   @IsNotEmpty()
   readonly baths: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  readonly guests: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  readonly price: number;
 
   @IsString()
   @IsNotEmpty()

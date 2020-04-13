@@ -9,8 +9,6 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Type } from './type.entity';
-import { City } from './city.entity';
-import { Price } from './price.entity';
 import { Picture } from './picture.entity';
 import { Booking } from './booking.entity';
 import { Review } from './review.entity';
@@ -38,6 +36,12 @@ export class Room {
   @Column('text')
   description: string;
 
+  @Column('text')
+  guests: number;
+
+  @Column('decimal')
+  price: number;
+
   @ManyToOne(
     () => User,
     user => user.rooms,
@@ -49,19 +53,6 @@ export class Room {
     type => type.rooms,
   )
   type: Type;
-
-  @ManyToOne(
-    () => City,
-    city => city.rooms,
-  )
-  city: City;
-
-  @OneToMany(
-    () => Price,
-    price => price.room,
-  )
-  @JoinColumn()
-  prices: Price[];
 
   @OneToMany(
     () => Picture,

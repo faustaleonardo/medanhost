@@ -20,19 +20,16 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class TypesController {
   constructor(private readonly serv: TypesService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() dto: CreateTypeDto): Promise<Type> {
     return this.serv.create(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(): Promise<Type[]> {
     return this.serv.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: number): Promise<Type> {
     return this.serv.findOne(id);
