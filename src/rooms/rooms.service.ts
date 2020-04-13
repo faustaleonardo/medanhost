@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
+  Req
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -21,27 +22,30 @@ export class RoomsService {
     private readonly usersServ: UsersService,
   ) {}
 
-  async create(dto: CreateRoomDto): Promise<Room> {
+  async create(dto: CreateRoomDto, @Req() req): Promise<Room> {
     const {
       name,
-      userId,
       typeId,
-      address,
+      location,
       bedrooms,
       beds,
       baths,
       description,
+      guests,
+      price,
     } = dto;
-
+    
     const newRoom = new Room();
     newRoom.name = name;
-    newRoom.address = address;
+    newRoom.location = location;
     newRoom.bedrooms = bedrooms;
     newRoom.beds = beds;
     newRoom.baths = baths;
     newRoom.description = description;
+    newRoom.guests = guests;
+    newRoom.price = price;
 
-    const user = await this.usersServ.findOne(userId);
+    const user = await this.usersServ.findOne(req.user.id);
     newRoom.user = user;
 
     const type = await this.typesServ.findOne(typeId);
@@ -66,17 +70,29 @@ export class RoomsService {
   }
 
   async update(id: number, data: any): Promise<Room> {
-    const { name, typeId, address, bedrooms, beds, baths, description } = data;
+    const {
+      name,
+      typeId,
+      location,
+      bedrooms,
+      beds,
+      baths,
+      description,
+      guests,
+      price,
+    } = data;
 
     const room = await this.repo.findOne(id);
     if (!room) throw new NotFoundException();
 
     if (name) room.name = name;
-    if (address) room.address = address;
+    if (location) room.location = location;
     if (bedrooms) room.bedrooms = bedrooms;
     if (beds) room.beds = beds;
     if (baths) room.baths = baths;
     if (description) room.description = description;
+    if (guests) room.guests = guests;
+    if (price) room.price = price;
 
     if (typeId) {
       const type = await this.typesServ.findOne(typeId);

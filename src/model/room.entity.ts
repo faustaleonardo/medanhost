@@ -22,7 +22,7 @@ export class Room {
   name: string;
 
   @Column('text')
-  address: string;
+  location: string;
 
   @Column()
   bedrooms: number;

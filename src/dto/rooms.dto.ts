@@ -5,18 +5,13 @@ export class CreateRoomDto {
   @IsNotEmpty()
   readonly name: string;
 
-  // host
-  @IsNumber()
-  @IsNotEmpty()
-  readonly userId: number;
-
   @IsNumber()
   @IsNotEmpty()
   readonly typeId: number;
 
   @IsString()
   @IsNotEmpty()
-  readonly address: string;
+  readonly location: string;
 
   @IsNumber()
   @IsNotEmpty()

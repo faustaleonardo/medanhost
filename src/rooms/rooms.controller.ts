@@ -8,6 +8,7 @@ import {
   Param,
   UseInterceptors,
   UseGuards,
+  Req
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { Room } from '../model/Room.entity';
@@ -22,8 +23,8 @@ export class RoomsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() dto: CreateRoomDto): Promise<Room> {
-    return this.serv.create(dto);
+  create(@Body() dto: CreateRoomDto, @Req() req): Promise<Room> {
+    return this.serv.create(dto, req);
   }
 
   @Get()
