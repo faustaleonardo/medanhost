@@ -3,10 +3,10 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
-  Req
+  Req,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Room } from '../model/room.entity';
 import { CreateRoomDto } from '../dto/rooms.dto';
 import { UsersService } from '../users/users.service';
@@ -34,7 +34,7 @@ export class RoomsService {
       guests,
       price,
     } = dto;
-    
+
     const newRoom = new Room();
     newRoom.name = name;
     newRoom.location = location;
@@ -54,10 +54,56 @@ export class RoomsService {
     return await this.repo.save(newRoom);
   }
 
-  async findAll(): Promise<Room[]> {
-    return await this.repo.find({
-      relations: ['user', 'type', 'bookmarks', 'pictures'],
-    });
+  async findAll(@Req() req): Promise<Room[]> {
+    const {
+      location,
+      checkInDate,
+      guests,
+      type,
+      minPrice,
+      maxPrice,
+    } = req.query;
+
+    // user can't check in if have booking with the same check in date
+    const d = new Date(checkInDate);
+    d.setDate(d.getDate() + 1);
+    const formattedCheckInDate = d.toISOString();
+
+    const queryBuilder = await this.repo
+      .createQueryBuilder('room')
+      .leftJoinAndSelect('room.user', 'user')
+      .leftJoinAndSelect('room.type', 'type')
+      .leftJoinAndSelect('room.bookmarks', 'bookmarks')
+      .leftJoinAndSelect('room.pictures', 'pictures')
+      // required query
+      .leftJoinAndSelect(
+        'room.bookings',
+        'bookings',
+        ':checkInDate BETWEEN bookings.checkInDate AND bookings.checkOutDate',
+        {
+          checkInDate: formattedCheckInDate,
+        },
+      );
+
+    // required query
+    queryBuilder
+      .where('room.location like :location', {
+        location: `%${location}%`,
+      })
+      .andWhere('room.guests >= :guests', { guests });
+
+    if (minPrice && maxPrice) {
+      queryBuilder.andWhere(
+        'room.price >= :minPrice AND room.price <= :maxPrice',
+        { minPrice, maxPrice },
+      );
+    }
+
+    if (type) {
+      queryBuilder.andWhere('room.type.id = :type', { type });
+    }
+
+    return queryBuilder.getMany();
   }
 
   async findOne(id: number): Promise<Room> {

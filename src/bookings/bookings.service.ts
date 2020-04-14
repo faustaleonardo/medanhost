@@ -24,7 +24,7 @@ export class BookingsService {
 
   async create(dto: CreateBookingDto): Promise<Booking> {
     // CHANGE TO AUTH USER LATER
-    const userId = 1;
+    const userId = 2;
     const { roomId, checkInDate, checkOutDate, guests, price } = dto;
 
     const newBooking = new Booking();

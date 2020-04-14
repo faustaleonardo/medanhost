@@ -8,7 +8,8 @@ import {
   Param,
   UseInterceptors,
   UseGuards,
-  Req
+  Req,
+  Query,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { Room } from '../model/Room.entity';
@@ -28,8 +29,8 @@ export class RoomsController {
   }
 
   @Get()
-  findAll(): Promise<Room[]> {
-    return this.serv.findAll();
+  findAll(@Req() req): Promise<Room[]> {
+    return this.serv.findAll(req);
   }
 
   @Get(':id')
