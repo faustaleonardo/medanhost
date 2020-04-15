@@ -6,7 +6,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Room } from '../model/room.entity';
 import { CreateRoomDto } from '../dto/rooms.dto';
 import { UsersService } from '../users/users.service';
