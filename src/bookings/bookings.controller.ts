@@ -49,4 +49,18 @@ export class BookingsController {
   update(@Param('id') id: number, @Body() data: any): Promise<Booking> {
     return this.serv.update(id, data);
   }
+
+  // Income Group By Month
+  @UseGuards(JwtAuthGuard)
+  @Get('/incomes/month')
+  getIncomeGroupByMonth(@Req() req: any): Promise<any> {
+    return this.serv.getIncomeGroupByMonth(req);
+  }
+
+  // Income Group By Year
+  @UseGuards(JwtAuthGuard)
+  @Get('/incomes/year')
+  getIncomeByYear(@Req() req: any): Promise<any> {
+    return this.serv.getIncomeByYear(req);
+  }
 }

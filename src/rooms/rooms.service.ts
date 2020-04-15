@@ -70,11 +70,15 @@ export class RoomsService {
   async findAllBelongsToOneHost(userId: number): Promise<Room[]> {
     return await this.repo
       .createQueryBuilder('room')
-      .innerJoinAndSelect('room.user', 'user', 'user.id = :userId', {userId})
+      .innerJoinAndSelect('room.user', 'user', 'user.id = :userId', { userId })
       .innerJoinAndSelect('room.type', 'type')
       .innerJoinAndSelect('room.bookmarks', 'bookmarks')
       .innerJoinAndSelect('room.pictures', 'pictures')
-      .innerJoinAndSelect('room.bookings','bookings', 'bookings.statusPayment = true AND bookings.active = false')
+      .innerJoinAndSelect(
+        'room.bookings',
+        'bookings',
+        'bookings.statusPayment = true AND bookings.active = false',
+      )
       .getMany();
   }
 
@@ -93,17 +97,17 @@ export class RoomsService {
     d.setDate(d.getDate() + 1);
     const formattedCheckInDate = d.toISOString();
 
-    const queryBuilder = await this.repo
+    const queryBuilder = this.repo
       .createQueryBuilder('room')
-      .innerJoinAndSelect('room.user', 'user')
-      .innerJoinAndSelect('room.type', 'type')
-      .innerJoinAndSelect('room.bookmarks', 'bookmarks')
-      .innerJoinAndSelect('room.pictures', 'pictures')
+      .leftJoinAndSelect('room.user', 'user')
+      .leftJoinAndSelect('room.type', 'type')
+      .leftJoinAndSelect('room.bookmarks', 'bookmarks')
+      .leftJoinAndSelect('room.pictures', 'pictures')
       // required query
-      .innerJoinAndSelect(
+      .leftJoinAndSelect(
         'room.bookings',
         'bookings',
-        ':checkInDate BETWEEN bookings.checkInDate AND bookings.checkOutDate AND bookings.active = true',
+        ':checkInDate BETWEEN bookings.checkInDate AND bookings.checkOutDate AND bookings.statusPayment = true',
         {
           checkInDate: formattedCheckInDate,
         },
@@ -122,16 +126,17 @@ export class RoomsService {
         { minPrice, maxPrice },
       );
     }
-    const formattedType = type.split(',');
-    formattedType.forEach(el => el * 1);
 
-    if (type.length) {
+    if (type && type.length) {
+      let formattedType = type.split(',');
+      formattedType = formattedType.map((el: number) => el * 1);
+
       queryBuilder.andWhere('room.type.id IN (:...type)', {
         type: formattedType,
       });
     }
 
-    return queryBuilder.getMany();
+    return await queryBuilder.getMany();
   }
 
   async findOne(id: number): Promise<Room> {

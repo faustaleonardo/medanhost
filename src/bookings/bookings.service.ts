@@ -6,7 +6,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getManager } from 'typeorm';
 import { Booking } from '../model/booking.entity';
 import { CreateBookingDto } from '../dto/bookings.dto';
 import { UsersService } from '../users/users.service';
@@ -26,7 +26,6 @@ export class BookingsService {
   ) {}
 
   async create(dto: CreateBookingDto, @Req() req): Promise<Booking> {
-    console.log('come here');
     const userId = req.user.id;
     const { roomId, checkInDate, checkOutDate, guests, price } = dto;
 
@@ -52,7 +51,7 @@ export class BookingsService {
     return await this.repo.save(newBooking);
   }
 
-  async findAll(@Req() req): Promise<Booking[]> {
+  async findAll(@Req() req: any): Promise<Booking[]> {
     const userId = req.user.id;
     const user = await this.usersServ.findOne(userId);
 
@@ -117,5 +116,56 @@ export class BookingsService {
     booking.statusPayment = true;
     booking.updatedAt = new Date();
     return await this.repo.save(booking);
+  }
+
+  // Group by
+  async getIncomeGroupByMonth(@Req() req: any): Promise<any> {
+    const { id } = req.user;
+
+    const entityManager = getManager();
+    const result = await entityManager.query(`
+      SELECT u.id as user_id, 
+        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'Mon') AS month, 
+        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'MM') AS month_number, 
+        TO_CHAR(DATE_TRUNC('year', "createdAt"), 'YYYY') AS year,
+        SUM(b.price) AS total
+      FROM public."booking" AS b
+      INNER JOIN public."room" AS r
+        ON "roomId" = r.id
+        INNER JOIN public."user" AS u
+          ON r."userId" = u.id
+      GROUP BY 1,2,3,4
+      ORDER BY 3,4 
+    `);
+
+    const filterResult = result.filter(
+      (el: { user_id: any }) => el.user_id === id,
+    );
+
+    return filterResult;
+  }
+
+  async getIncomeByYear(@Req() req: any): Promise<any> {
+    const { id } = req.user;
+
+    const entityManager = getManager();
+    const result = await entityManager.query(`
+      SELECT u.id as user_id, 
+        TO_CHAR(DATE_TRUNC('year', "createdAt"), 'YYYY') AS year,
+        SUM(b.price) AS total
+      FROM public."booking" AS b
+      INNER JOIN public."room" AS r
+        ON "roomId" = r.id
+        INNER JOIN public."user" AS u
+          ON r."userId" = u.id
+      GROUP BY 1,2
+      ORDER BY 2
+    `);
+
+    const filterResult = result.filter(
+      (el: { user_id: any }) => el.user_id === id,
+    );
+
+    return filterResult;
   }
 }

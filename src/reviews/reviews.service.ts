@@ -29,7 +29,8 @@ export class ReviewsService {
 
     // update existing review
     const existingReview = await this.findOneByRoomId(roomId, req);
-    if (existingReview) return this.update(existingReview.id, {ratings, comments});
+    if (existingReview)
+      return this.update(existingReview.id, { ratings, comments });
 
     const newReview = new Review();
     newReview.ratings = ratings;
@@ -65,12 +66,18 @@ export class ReviewsService {
   async findOneByRoomId(roomId: number, @Req() req): Promise<Review> {
     const userId = req.user.id;
 
-    return await this.repo.createQueryBuilder('review')
-      .innerJoinAndSelect('review.user', 'user', 'user.id = :userId', {userId})
-      .innerJoinAndSelect('review.room', 'room', 'room.id = :roomId', {roomId})
+    console.log(roomId);
+
+    return await this.repo
+      .createQueryBuilder('review')
+      .innerJoinAndSelect('review.user', 'user', 'user.id = :userId', {
+        userId,
+      })
+      .innerJoinAndSelect('review.room', 'room', 'room.id = :roomId', {
+        roomId,
+      })
       .getOne();
   }
-
 
   async update(id: number, data: any): Promise<Review> {
     const { ratings, comments } = data;
