@@ -4,7 +4,8 @@ import {
   Inject,
   forwardRef,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -32,10 +33,16 @@ export class UsersService {
     const { googleId, email, firstName, lastName, roleId } = dto;
 
     // check if user exists
-    const existingUser = await this.repo.findOne({ email }, {relations: ['role']});
+    const existingUser = await this.repo.findOne(
+      { email },
+      { relations: ['role'] },
+    );
     if (existingUser) {
       if (existingUser.role.id !== roleId) {
-        throw new HttpException(`This email has been registered as a ${existingUser.role.value}!`, HttpStatus.FORBIDDEN);
+        throw new HttpException(
+          `This email has been registered as a ${existingUser.role.value}!`,
+          HttpStatus.FORBIDDEN,
+        );
       }
 
       jwt = this.authServ.generateJWT(existingUser);
@@ -63,17 +70,28 @@ export class UsersService {
     };
   }
 
-  async bookmark(dto: CreateBookmarkDto): Promise<User> {
-    // change to auth user later
-    const userId = 1;
+  async createBookmark(dto: CreateBookmarkDto, @Req() req: any): Promise<User> {
+    const userId = req.user.id;
     const { roomId } = dto;
 
-    const user = await this.repo.findOne(userId);
+    const user = await this.repo.findOne(userId, { relations: ['bookmarks'] });
     const room = await this.roomsServ.findOne(roomId);
 
     if (user.bookmarks instanceof Array) {
       user.bookmarks = [...user.bookmarks, room];
     } else user.bookmarks = [room];
+
+    return await this.repo.save(user);
+  }
+
+  async deleteBookmark(dto: CreateBookmarkDto, @Req() req: any): Promise<User> {
+    const userId = req.user.id;
+    const { roomId } = dto;
+
+    const user = await this.repo.findOne(userId, { relations: ['bookmarks'] });
+    const filteredBookmarks = user.bookmarks.filter(el => el.id !== roomId);
+
+    user.bookmarks = filteredBookmarks;
 
     return await this.repo.save(user);
   }
@@ -92,7 +110,7 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string): Promise<User> {
-    return await this.repo.findOne({ email }, {relations: ['role']});
+    return await this.repo.findOne({ email }, { relations: ['role'] });
   }
 
   async update(id: number, dto: UpdateUserDto): Promise<User> {

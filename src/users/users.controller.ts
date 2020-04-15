@@ -9,6 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
   Request,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../model/user.entity';
@@ -29,8 +30,20 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/bookmarks')
-  bookmark(@Body() dto: CreateBookmarkDto): Promise<User> {
-    return this.serv.bookmark(dto);
+  createBookmark(
+    @Body() dto: CreateBookmarkDto,
+    @Req() req: any,
+  ): Promise<User> {
+    return this.serv.createBookmark(dto, req);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/bookmarks')
+  deleteBookmark(
+    @Body() dto: CreateBookmarkDto,
+    @Req() req: any,
+  ): Promise<User> {
+    return this.serv.deleteBookmark(dto, req);
   }
 
   @Get()

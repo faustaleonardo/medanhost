@@ -29,8 +29,13 @@ export class RoomsController {
   }
 
   @Get()
-  findAll(@Req() req): Promise<Room[]> {
-    return this.serv.findAll(req);
+  findAll(): Promise<Room[]> {
+    return this.serv.findAll();
+  }
+
+  @Get('/search')
+  search(@Req() req: any): Promise<Room[]> {
+    return this.serv.search(req);
   }
 
   @Get(':id')

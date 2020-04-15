@@ -8,6 +8,9 @@ export class Review {
   id: number;
 
   @Column()
+  username: string;
+
+  @Column()
   ratings: number;
 
   @Column('text')

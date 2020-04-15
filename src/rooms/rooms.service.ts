@@ -54,7 +54,20 @@ export class RoomsService {
     return await this.repo.save(newRoom);
   }
 
-  async findAll(@Req() req): Promise<Room[]> {
+  async findAll(): Promise<Room[]> {
+    return await this.repo.find({
+      relations: [
+        'user',
+        'type',
+        'bookmarks',
+        'pictures',
+        'bookings',
+        'reviews',
+      ],
+    });
+  }
+
+  async search(@Req() req: any): Promise<Room[]> {
     const {
       location,
       checkInDate,
@@ -102,7 +115,9 @@ export class RoomsService {
     formattedType.forEach(el => el * 1);
 
     if (type.length) {
-      queryBuilder.andWhere('room.type.id IN (:...type)', { type: formattedType });
+      queryBuilder.andWhere('room.type.id IN (:...type)', {
+        type: formattedType,
+      });
     }
 
     return queryBuilder.getMany();
@@ -110,7 +125,14 @@ export class RoomsService {
 
   async findOne(id: number): Promise<Room> {
     const Room = await this.repo.findOne(id, {
-      relations: ['user', 'type', 'bookmarks', 'pictures', 'bookings'],
+      relations: [
+        'user',
+        'type',
+        'bookmarks',
+        'pictures',
+        'bookings',
+        'reviews',
+      ],
     });
     if (!Room) throw new NotFoundException();
 

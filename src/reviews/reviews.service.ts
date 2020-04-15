@@ -37,7 +37,7 @@ export class ReviewsService {
 
     const user = await this.usersServ.findOne(userId);
     newReview.user = user;
-
+    newReview.username = user.firstName;
     const room = await this.roomsServ.findOne(roomId);
     newReview.room = room;
 
