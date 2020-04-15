@@ -67,6 +67,17 @@ export class RoomsService {
     });
   }
 
+  async findAllBelongsToOneHost(userId: number): Promise<Room[]> {
+    return await this.repo
+      .createQueryBuilder('room')
+      .innerJoinAndSelect('room.user', 'user', 'user.id = :userId', {userId})
+      .innerJoinAndSelect('room.type', 'type')
+      .innerJoinAndSelect('room.bookmarks', 'bookmarks')
+      .innerJoinAndSelect('room.pictures', 'pictures')
+      .innerJoinAndSelect('room.bookings','bookings', 'bookings.statusPayment = true AND bookings.active = false')
+      .getMany();
+  }
+
   async search(@Req() req: any): Promise<Room[]> {
     const {
       location,
@@ -84,12 +95,12 @@ export class RoomsService {
 
     const queryBuilder = await this.repo
       .createQueryBuilder('room')
-      .leftJoinAndSelect('room.user', 'user')
-      .leftJoinAndSelect('room.type', 'type')
-      .leftJoinAndSelect('room.bookmarks', 'bookmarks')
-      .leftJoinAndSelect('room.pictures', 'pictures')
+      .innerJoinAndSelect('room.user', 'user')
+      .innerJoinAndSelect('room.type', 'type')
+      .innerJoinAndSelect('room.bookmarks', 'bookmarks')
+      .innerJoinAndSelect('room.pictures', 'pictures')
       // required query
-      .leftJoinAndSelect(
+      .innerJoinAndSelect(
         'room.bookings',
         'bookings',
         ':checkInDate BETWEEN bookings.checkInDate AND bookings.checkOutDate AND bookings.active = true',

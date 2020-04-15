@@ -66,8 +66,8 @@ export class ReviewsService {
     const userId = req.user.id;
 
     return await this.repo.createQueryBuilder('review')
-      .leftJoinAndSelect('review.user', 'user', 'user.id = :userId', {userId})
-      .leftJoinAndSelect('review.room', 'room', 'room.id = :roomId', {roomId})
+      .innerJoinAndSelect('review.user', 'user', 'user.id = :userId', {userId})
+      .innerJoinAndSelect('review.room', 'room', 'room.id = :roomId', {roomId})
       .getOne();
   }
 

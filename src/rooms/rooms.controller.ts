@@ -33,6 +33,11 @@ export class RoomsController {
     return this.serv.findAll();
   }
 
+  @Get('/hosts/:userId')
+  findAllBelongsToOneHost(@Param('userId') userId: number): Promise<Room[]> {
+    return this.serv.findAllBelongsToOneHost(userId);
+  }
+
   @Get('/search')
   search(@Req() req: any): Promise<Room[]> {
     return this.serv.search(req);
