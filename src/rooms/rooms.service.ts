@@ -110,7 +110,7 @@ export class RoomsService {
 
   async findOne(id: number): Promise<Room> {
     const Room = await this.repo.findOne(id, {
-      relations: ['user', 'type', 'bookmarks', 'pictures'],
+      relations: ['user', 'type', 'bookmarks', 'pictures', 'bookings'],
     });
     if (!Room) throw new NotFoundException();
 

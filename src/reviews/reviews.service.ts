@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
+  Req,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,10 +23,13 @@ export class ReviewsService {
     private readonly roomsServ: RoomsService,
   ) {}
 
-  async create(dto: CreateReviewDto): Promise<Review> {
-    // CHANGE TO AUTH USER LATER
-    const userId = 1;
+  async create(dto: CreateReviewDto, @Req() req): Promise<Review> {
+    const userId = req.user.id;
     const { roomId, ratings, comments } = dto;
+
+    // update existing review
+    const existingReview = await this.findOneByRoomId(roomId, req);
+    if (existingReview) return this.update(existingReview.id, {ratings, comments});
 
     const newReview = new Review();
     newReview.ratings = ratings;
@@ -57,6 +61,16 @@ export class ReviewsService {
 
     return review;
   }
+
+  async findOneByRoomId(roomId: number, @Req() req): Promise<Review> {
+    const userId = req.user.id;
+
+    return await this.repo.createQueryBuilder('review')
+      .leftJoinAndSelect('review.user', 'user', 'user.id = :userId', {userId})
+      .leftJoinAndSelect('review.room', 'room', 'room.id = :roomId', {roomId})
+      .getOne();
+  }
+
 
   async update(id: number, data: any): Promise<Review> {
     const { ratings, comments } = data;

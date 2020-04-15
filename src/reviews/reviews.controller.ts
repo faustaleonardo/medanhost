@@ -8,6 +8,7 @@ import {
   Param,
   UseInterceptors,
   UseGuards,
+  Req
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { Review } from '../model/review.entity';
@@ -22,8 +23,8 @@ export class ReviewsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() dto: CreateReviewDto): Promise<Review> {
-    return this.serv.create(dto);
+  create(@Body() dto: CreateReviewDto, @Req() req): Promise<Review> {
+    return this.serv.create(dto, req);
   }
 
   @Get()
@@ -34,6 +35,12 @@ export class ReviewsController {
   @Get(':id')
   findOne(@Param('id') id: number): Promise<Review> {
     return this.serv.findOne(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/rooms/:roomId')
+  findOneByRoomId(@Param('roomId') roomId: number, @Req() req): Promise<Review> {
+    return this.serv.findOneByRoomId(roomId, req);
   }
 
   @UseGuards(JwtAuthGuard)
