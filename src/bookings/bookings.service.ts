@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
+  Req,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,6 +11,8 @@ import { Booking } from '../model/booking.entity';
 import { CreateBookingDto } from '../dto/bookings.dto';
 import { UsersService } from '../users/users.service';
 import { RoomsService } from '../rooms/rooms.service';
+import axios from 'axios';
+import Stripe from 'stripe';
 
 @Injectable()
 export class BookingsService {
@@ -22,9 +25,9 @@ export class BookingsService {
     private readonly roomsServ: RoomsService,
   ) {}
 
-  async create(dto: CreateBookingDto): Promise<Booking> {
-    // CHANGE TO AUTH USER LATER
-    const userId = 2;
+  async create(dto: CreateBookingDto, @Req() req): Promise<Booking> {
+    console.log('come here');
+    const userId = req.user.id;
     const { roomId, checkInDate, checkOutDate, guests, price } = dto;
 
     const newBooking = new Booking();
@@ -49,9 +52,13 @@ export class BookingsService {
     return await this.repo.save(newBooking);
   }
 
-  async findAll(): Promise<Booking[]> {
+  async findAll(@Req() req): Promise<Booking[]> {
+    const userId = req.user.id;
+    const user = await this.usersServ.findOne(userId);
+
     return await this.repo.find({
       relations: ['user', 'room'],
+      where: { user },
     });
   }
 
@@ -75,6 +82,40 @@ export class BookingsService {
 
     booking.updatedAt = new Date();
 
+    return await this.repo.save(booking);
+  }
+
+  async payWithStripe(id: number, data: any): Promise<Booking> {
+    const booking = await this.repo.findOne(id);
+    if (!booking) throw new NotFoundException();
+
+    // charge stripe
+    const { token } = data;
+    const price = booking.price;
+    const response = await axios.get(
+      'https://api.exchangeratesapi.io/latest?base=USD&symbols=USD,IDR',
+    );
+    const rate = response.data.rates.IDR;
+
+    // 100 cents = 1 dollar
+    const amount = Math.floor(price / rate) * 100;
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: null,
+      typescript: true,
+    });
+
+    await stripe.charges.create({
+      amount,
+      currency: 'USD',
+      description: `MEDANHOST XYZ. Pay for the booking ID: ${booking.id}`,
+      source: token,
+    });
+
+    // update DB
+    booking.active = false;
+    booking.statusPayment = true;
+    booking.updatedAt = new Date();
     return await this.repo.save(booking);
   }
 }

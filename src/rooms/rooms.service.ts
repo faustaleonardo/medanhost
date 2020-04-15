@@ -79,7 +79,7 @@ export class RoomsService {
       .leftJoinAndSelect(
         'room.bookings',
         'bookings',
-        ':checkInDate BETWEEN bookings.checkInDate AND bookings.checkOutDate',
+        ':checkInDate BETWEEN bookings.checkInDate AND bookings.checkOutDate AND bookings.active = true',
         {
           checkInDate: formattedCheckInDate,
         },
@@ -98,9 +98,11 @@ export class RoomsService {
         { minPrice, maxPrice },
       );
     }
+    const formattedType = type.split(',');
+    formattedType.forEach(el => el * 1);
 
-    if (type) {
-      queryBuilder.andWhere('room.type.id = :type', { type });
+    if (type.length) {
+      queryBuilder.andWhere('room.type.id IN (:...type)', { type: formattedType });
     }
 
     return queryBuilder.getMany();
