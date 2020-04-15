@@ -38,12 +38,12 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete('/bookmarks')
+  @Delete('/bookmarks/rooms/:roomId')
   deleteBookmark(
-    @Body() dto: CreateBookmarkDto,
+    @Param('roomId') roomId: number,
     @Req() req: any,
   ): Promise<User> {
-    return this.serv.deleteBookmark(dto, req);
+    return this.serv.deleteBookmark(roomId, req);
   }
 
   @Get()

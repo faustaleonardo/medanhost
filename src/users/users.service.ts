@@ -84,9 +84,8 @@ export class UsersService {
     return await this.repo.save(user);
   }
 
-  async deleteBookmark(dto: CreateBookmarkDto, @Req() req: any): Promise<User> {
+  async deleteBookmark(roomId: number, @Req() req: any): Promise<User> {
     const userId = req.user.id;
-    const { roomId } = dto;
 
     const user = await this.repo.findOne(userId, { relations: ['bookmarks'] });
     const filteredBookmarks = user.bookmarks.filter(el => el.id !== roomId);
