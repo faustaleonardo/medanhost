@@ -34,6 +34,6 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # Configuration
-/ormconfig.json
+# /ormconfig.json
 /ormconfig.prod.json
 /.env

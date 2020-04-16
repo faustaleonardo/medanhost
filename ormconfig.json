@@ -1,0 +1,10 @@
+{
+  "type": "postgres",
+  "host": "db-instance-pg-medanhost.c5z41jrlcefd.ap-southeast-1.rds.amazonaws.com",
+  "port": 5432,
+  "username": "postgres",
+  "password": "NKrgsBY2vN9cu1dnOYO1",
+  "database": "medan_host",
+  "entities": ["dist/**/*.entity{.ts,.js}"],
+  "synchronize": true
+}
