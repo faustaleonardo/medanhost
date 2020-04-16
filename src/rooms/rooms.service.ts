@@ -71,10 +71,21 @@ export class RoomsService {
     return await this.repo
       .createQueryBuilder('room')
       .innerJoinAndSelect('room.user', 'user', 'user.id = :userId', { userId })
-      .innerJoinAndSelect('room.type', 'type')
-      .innerJoinAndSelect('room.bookmarks', 'bookmarks')
-      .innerJoinAndSelect('room.pictures', 'pictures')
-      .innerJoinAndSelect(
+      .leftJoinAndSelect('room.type', 'type')
+      .leftJoinAndSelect('room.bookmarks', 'bookmarks')
+      .leftJoinAndSelect('room.pictures', 'pictures')
+      .leftJoinAndSelect('room.bookings','bookings')
+      .getMany();
+  }
+
+  async findAllBookedBelongsToOneHost(userId: number): Promise<Room[]> {
+    return await this.repo
+      .createQueryBuilder('room')
+      .innerJoinAndSelect('room.user', 'user', 'user.id = :userId', { userId })
+      .leftJoinAndSelect('room.type', 'type')
+      .leftJoinAndSelect('room.bookmarks', 'bookmarks')
+      .leftJoinAndSelect('room.pictures', 'pictures')
+      .leftJoinAndSelect(
         'room.bookings',
         'bookings',
         'bookings.statusPayment = true AND bookings.active = false',

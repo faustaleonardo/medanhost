@@ -5,12 +5,14 @@ import { BookingsService } from './bookings.service';
 import { Booking } from '../model/booking.entity';
 import { UsersModule } from '../users/users.module';
 import { RoomsModule } from '../rooms/rooms.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Booking]),
     forwardRef(() => RoomsModule),
     forwardRef(() => UsersModule),
+    EmailModule,
   ],
   controllers: [BookingsController],
   providers: [BookingsService],

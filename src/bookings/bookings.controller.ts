@@ -27,9 +27,15 @@ export class BookingsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/all')
+  findAll(): Promise<Booking[]> {
+    return this.serv.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Req() req): Promise<Booking[]> {
-    return this.serv.findAll(req);
+  findAllBelongsToOneGuest(@Req() req: any): Promise<Booking[]> {
+    return this.serv.findAllBelongsToOneGuest(req);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -50,6 +56,7 @@ export class BookingsController {
     return this.serv.update(id, data);
   }
 
+  /** host */
   // Income Group By Month
   @UseGuards(JwtAuthGuard)
   @Get('/incomes/month')
@@ -62,5 +69,18 @@ export class BookingsController {
   @Get('/incomes/year')
   getIncomeByYear(@Req() req: any): Promise<any> {
     return this.serv.getIncomeByYear(req);
+  }
+
+  /** admin */
+  @UseGuards(JwtAuthGuard)
+  @Get('/transactions/month')
+  getTransactionGroupByMonth(@Req() req: any): Promise<any> {
+    return this.serv.getTransactionGroupByMonth(req);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/transactions/year')
+  getTransactionGroupByYear(@Req() req: any): Promise<any> {
+    return this.serv.getTransactionGroupByYear(req);
   }
 }

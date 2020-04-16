@@ -129,6 +129,10 @@ export class UsersService {
     const user = await this.repo.findOne(id);
     if (!user) throw new NotFoundException();
 
-    await this.repo.remove(user);
+    try {
+      await this.repo.remove(user);
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

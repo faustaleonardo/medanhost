@@ -4,6 +4,8 @@ import {
   Inject,
   forwardRef,
   Req,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getManager } from 'typeorm';
@@ -11,6 +13,7 @@ import { Booking } from '../model/booking.entity';
 import { CreateBookingDto } from '../dto/bookings.dto';
 import { UsersService } from '../users/users.service';
 import { RoomsService } from '../rooms/rooms.service';
+import { EmailService } from '../email/email.service';
 import axios from 'axios';
 import Stripe from 'stripe';
 
@@ -23,9 +26,12 @@ export class BookingsService {
     private readonly usersServ: UsersService,
     @Inject(forwardRef(() => RoomsService))
     private readonly roomsServ: RoomsService,
+    private readonly emailServ: EmailService,
   ) {}
 
-  async create(dto: CreateBookingDto, @Req() req): Promise<Booking> {
+  private entityManager = getManager();
+
+  async create(dto: CreateBookingDto, @Req() req: any): Promise<Booking> {
     const userId = req.user.id;
     const { roomId, checkInDate, checkOutDate, guests, price } = dto;
 
@@ -48,16 +54,32 @@ export class BookingsService {
     const room = await this.roomsServ.findOne(roomId);
     newBooking.room = room;
 
+    // send email
+    const credentials = {
+      firstName: user.firstName,
+      email: user.email,
+    };
+    await this.emailServ.sendPaymentReminder(credentials);
+
     return await this.repo.save(newBooking);
   }
 
-  async findAll(@Req() req: any): Promise<Booking[]> {
+  async findAll(): Promise<Booking[]> {
+    return await this.repo.find({
+      relations: ['user', 'room'],
+    });
+  }
+
+  async findAllBelongsToOneGuest(@Req() req: any): Promise<Booking[]> {
     const userId = req.user.id;
     const user = await this.usersServ.findOne(userId);
 
     return await this.repo.find({
       relations: ['user', 'room'],
       where: { user },
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
 
@@ -122,8 +144,7 @@ export class BookingsService {
   async getIncomeGroupByMonth(@Req() req: any): Promise<any> {
     const { id } = req.user;
 
-    const entityManager = getManager();
-    const result = await entityManager.query(`
+    const result = await this.entityManager.query(`
       SELECT u.id as user_id, 
         TO_CHAR(DATE_TRUNC('month', "createdAt"), 'Mon') AS month, 
         TO_CHAR(DATE_TRUNC('month', "createdAt"), 'MM') AS month_number, 
@@ -162,10 +183,60 @@ export class BookingsService {
       ORDER BY 2
     `);
 
-    const filterResult = result.filter(
+    const filteredResult = result.filter(
       (el: { user_id: any }) => el.user_id === id,
     );
 
-    return filterResult;
+    return filteredResult;
+  }
+
+  async getTransactionGroupByMonth(@Req() req: any): Promise<any> {
+    const { id } = req.user;
+
+    // check if it is admin
+    const user = await this.usersServ.findOne(id);
+    if (user.role.id !== 1) {
+      throw new HttpException(
+        'Only admin can access this route',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const result = await this.entityManager.query(`
+      SELECT
+        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'Mon') AS month, 
+        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'MM') AS month_number, 
+        TO_CHAR(DATE_TRUNC('year', "createdAt"), 'YYYY') AS year,
+        count(b.id) AS total
+      FROM public."booking" AS b
+      GROUP BY 1,2,3
+      ORDER BY 1,2,3 
+    `);
+
+    return result;
+  }
+
+  async getTransactionGroupByYear(@Req() req: any): Promise<any> {
+    const { id } = req.user;
+
+    // check if it is admin
+    const user = await this.usersServ.findOne(id);
+    if (user.role.id !== 1) {
+      throw new HttpException(
+        'Only admin can access this route',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const result = await this.entityManager.query(`
+      SELECT
+        TO_CHAR(DATE_TRUNC('year', "createdAt"), 'YYYY') AS year,
+        count(b.id) AS total
+      FROM public."booking" AS b
+      GROUP BY 1
+      ORDER BY 1
+    `);
+
+    return result;
   }
 }

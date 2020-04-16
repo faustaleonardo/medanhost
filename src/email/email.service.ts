@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as htmlToText from 'html-to-text';
-import emailTemplate from './emailTemplate';
+import emailTemplateOtpCode from './emailTemplateOtpCode';
+import emailTemplatePaymentReminder from './emailTemplatePaymentReminder';
 
 interface Credentials {
   [key: string]: string;
@@ -13,6 +14,7 @@ export class EmailService {
   private _to: string;
   private _otpCode: number;
   private _from = 'no-reply@medanhost.xyz';
+  private _;
 
   _newTransport(): any {
     // for development
@@ -34,8 +36,13 @@ export class EmailService {
     });
   }
 
-  async _send(subject: string): Promise<void> {
-    const html = emailTemplate(this._firstName, this._otpCode);
+  async _send(subject: string, option: string): Promise<void> {
+    let html: any;
+    if (option === 'otp-code') {
+      html = emailTemplateOtpCode(this._firstName, this._otpCode);
+    } else {
+      html = emailTemplatePaymentReminder(process.env.URL);
+    }
 
     const mailOptions = {
       from: this._from,
@@ -53,6 +60,13 @@ export class EmailService {
     this._to = credentials.email;
     this._otpCode = otpCode;
 
-    await this._send('Medanhost OTP Code');
+    await this._send('Medanhost OTP Code', 'otp-code');
+  }
+
+  async sendPaymentReminder(credentials: Credentials): Promise<void> {
+    this._firstName = credentials.firstName;
+    this._to = credentials.email;
+
+    await this._send('Medanhost Booking', 'payment reminder');
   }
 }

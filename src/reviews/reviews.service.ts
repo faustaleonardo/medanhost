@@ -66,8 +66,6 @@ export class ReviewsService {
   async findOneByRoomId(roomId: number, @Req() req): Promise<Review> {
     const userId = req.user.id;
 
-    console.log(roomId);
-
     return await this.repo
       .createQueryBuilder('review')
       .innerJoinAndSelect('review.user', 'user', 'user.id = :userId', {
