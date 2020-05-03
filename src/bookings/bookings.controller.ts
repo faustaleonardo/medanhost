@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { Booking } from '../model/booking.entity';
-import { CreateBookingDto } from '../dto/Bookings.dto';
+import { CreateBookingDto } from '../dto/bookings.dto';
 import { NotFoundInterceptor } from '../interceptors/errors.interceptor';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
