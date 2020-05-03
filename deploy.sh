@@ -1,2 +1,4 @@
-docker build -t faustaleonardo/medanhost:latest .
-docker push faustaleonardo/medanhost:latest
+$SHA=(git rev-parse HEAD)
+
+docker build -t faustaleonardo/medanhost:$SHA .
+# docker push faustaleonardo/medanhost:latest
